@@ -305,6 +305,7 @@ export default function App() {
   const [newItem, setNewItem] = useState({ name: "", qty: "", price: "", brand: "", weight: "", unit: "un" });
   const [autocomplete, setAutocomplete] = useState([]);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [favOpen, setFavOpen] = useState(false);
   const [listMenuOpen, setListMenuOpen] = useState(false);
   const [listMenuSection, setListMenuSection] = useState(null); // "sort"|"filter"|"total"|null
   const [listPriceFilter, setListPriceFilter] = useState(null); // null | "cheaper" | "pricier"
@@ -698,6 +699,52 @@ export default function App() {
   }
 
   const CATALOG = ["Arroz", "Feijao", "Acucar", "Cafe", "Leite", "Pao frances", "Pao de forma", "Macarrao", "Oleo", "Azeite", "Sal", "Farinha de trigo", "Farinha de mandioca", "Ovos", "Carne moida", "Frango", "Linguica", "Queijo", "Manteiga", "Margarina", "Presunto", "Tomate", "Cebola", "Alho", "Batata", "Cenoura", "Banana", "Maca", "Laranja", "Limao", "Papel higienico", "Sabonete", "Shampoo", "Creme dental", "Detergente", "Sabao em po", "Sabao em barra", "Amaciante", "Agua sanitaria", "Esponja de louca", "Saco de lixo", "Papel toalha", "Absorvente", "Fralda", "Gas de cozinha", "Achocolatado", "Biscoito", "Farinha de milho", "Fermento em po", "Milho verde", "Molho de tomate"];
+
+  function favKey(f) { return (f.name || "").toLowerCase() + "|" + (f.brand || "").toLowerCase(); }
+
+  function toggleFavorite(entry) {
+    const favs = data.favorites || [];
+    const exists = favs.some((f) => favKey(f) === favKey(entry));
+    setData((d) => ({
+      ...d,
+      favorites: exists
+        ? (d.favorites || []).filter((f) => favKey(f) !== favKey(entry))
+        : [...(d.favorites || []), { id: uid(), name: entry.name, brand: entry.brand || null, weight: entry.weight || null, unit: entry.unit || "un" }],
+    }));
+    showToast(exists ? "Removido dos favoritos" : "⭐ Adicionado aos favoritos!");
+  }
+
+  function favoriteTyped() {
+    const nm = newItem.name.trim();
+    if (!nm) { showToast("Digite um produto para favoritar"); return; }
+    toggleFavorite({ name: capitalize(nm), brand: newItem.brand.trim(), weight: newItem.weight.trim(), unit: newItem.unit });
+  }
+
+  function addFavToCurrent(f) {
+    if (!currentList) { showToast("Abra ou crie uma lista primeiro"); return; }
+    const hist = (data.priceHistory || {})[f.name.toLowerCase()] || [];
+    const price = hist.length ? hist[0].price : 0;
+    const item = { id: uid(), name: f.name, qty: 1, price, checked: false, priceHint: null, brand: f.brand || null, weight: f.weight || null, unit: f.unit || "un" };
+    setData((d) => ({ ...d, lists: d.lists.map((l) => (l.id === currentList.id ? { ...l, items: [...l.items, item] } : l)) }));
+    showToast(f.name + " adicionado à lista!");
+  }
+
+  useEffect(() => {
+    const q = (newItem.name || "").trim().toLowerCase();
+    if (!q) return;
+    let src = null;
+    for (const l of data.lists || []) { for (const it of l.items || []) { if (it.name.toLowerCase() === q && (it.brand || it.weight || it.price)) { src = it; break; } } if (src) break; }
+    if (!src) return;
+    setNewItem((i) => {
+      if ((i.name || "").trim().toLowerCase() !== q) return i;
+      const up = { ...i };
+      let ch = false;
+      if (!up.brand && src.brand) { up.brand = src.brand; ch = true; }
+      if (!up.weight && src.weight) { up.weight = src.weight; up.unit = src.unit || up.unit; ch = true; }
+      if (!up.price && src.price) { up.price = maskCurrency(String(src.price)); ch = true; }
+      return ch ? up : i;
+    });
+  }, [newItem.name]);
 
   function createSeedList() {
     const iso = new Date().toISOString().slice(0, 10);
@@ -1783,7 +1830,40 @@ export default function App() {
                   </select>
                 </div>
               )}
-              <button onClick={addItem} style={{ ...primaryBtn, padding: "10px" }}>+ ADICIONAR</button>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button onClick={addItem} style={{ ...primaryBtn, padding: "10px", flex: 1 }}>+ ADICIONAR</button>
+                <button onClick={favoriteTyped} title="Favoritar produto digitado" style={{ ...primaryBtn, padding: "10px", flex: 0, background: t.bg3, color: t.accent, border: `1px solid ${t.border}` }}>★</button>
+                <button onClick={() => setFavOpen(true)} title="Favoritos" style={{ ...primaryBtn, padding: "10px", flex: 0, background: t.bg3, color: t.accent, border: `1px solid ${t.border}` }}>⭐{(data.favorites || []).length ? (data.favorites || []).length : ""}</button>
+              </div>
+              {favOpen && (
+                <div style={{ position: "fixed", inset: 0, zIndex: 800, display: "flex", flexDirection: "column" }}>
+                  <div onClick={() => setFavOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
+                  <div style={{ position: "relative", zIndex: 1, marginTop: "auto", width: "100%", maxWidth: 430, marginLeft: "auto", marginRight: "auto", background: t.bg2, borderRadius: "20px 20px 0 0", maxHeight: "70vh", display: "flex", flexDirection: "column", border: `1px solid ${t.border}` }}>
+                    <div style={{ padding: "18px 20px 12px", borderBottom: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: fs + 1, fontWeight: "bold" }}>⭐ Favoritos</div>
+                      <button onClick={() => setFavOpen(false)} style={{ background: t.bg3, border: "none", color: t.text2, width: 32, height: 32, borderRadius: 8, cursor: "pointer", fontSize: 16 }}>✕</button>
+                    </div>
+                    <div style={{ overflowY: "auto", flex: 1, padding: "12px 16px" }}>
+                      {(data.favorites || []).length === 0 ? (
+                        <div style={{ textAlign: "center", padding: "40px 0", color: t.text4 }}>
+                          <div style={{ fontSize: 32 }}>⭐</div>
+                          <div style={{ marginTop: 10, fontSize: fs - 1 }}>Nenhum favorito ainda</div>
+                          <div style={{ marginTop: 6, fontSize: fs - 3, color: t.text3 }}>Digite um produto e toque em ★ para favoritar</div>
+                        </div>
+                      ) : (data.favorites || []).map((f) => (
+                        <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: t.bg3, border: `1px solid ${t.border}`, borderRadius: 10, marginBottom: 8 }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: fs - 1, fontWeight: "bold", color: t.text }}>{f.name}</div>
+                            {(f.brand || f.weight) ? (<div style={{ fontSize: fs - 4, color: t.text3, marginTop: 2 }}>{[f.brand, f.weight ? f.weight + (f.unit || "un") : null].filter(Boolean).join(" · ")}</div>) : null}
+                          </div>
+                          <button onClick={() => addFavToCurrent(f)} style={{ background: t.accentBg, border: `1px solid ${t.accentBorder}`, color: t.accent, borderRadius: 8, padding: "6px 10px", fontSize: fs - 3, cursor: "pointer", fontFamily: "inherit", fontWeight: "bold" }}>+ LISTA</button>
+                          <button onClick={() => toggleFavorite(f)} style={{ background: t.upBg, border: `1px solid ${t.up}33`, color: t.up, borderRadius: 8, padding: "6px 10px", fontSize: fs - 3, cursor: "pointer", fontFamily: "inherit" }}>🗑</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
