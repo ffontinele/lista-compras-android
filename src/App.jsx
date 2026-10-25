@@ -698,14 +698,13 @@ export default function App() {
   }
 
   function addItem() {
-    if (!newItem.name.trim() || !newItem.price || !currentList) return;
+    if (!newItem.name.trim() || !currentList) return;
     const price = unmaskCurrency(newItem.price);
     const qty = parseInt(newItem.qty, 10) || 1;
-    if (!price) return;
     // Get hint BEFORE recording history so comparison uses previous purchases
-    const hint = getPriceHint(newItem.name.trim(), price);
+    const hint = price > 0 ? getPriceHint(newItem.name.trim(), price) : null;
     const item = { id: uid(), name: capitalize(newItem.name.trim()), qty, price, checked: false, priceHint: hint || null, brand: newItem.brand.trim() || null, weight: newItem.weight.trim() || null, unit: newItem.unit || "un" };
-    const ph = recordPriceHistory(item.name, price, currentList);
+    const ph = price > 0 ? recordPriceHistory(item.name, price, currentList) : data.priceHistory;
     setData((d) => ({
       ...d,
       priceHistory: ph,
@@ -1704,7 +1703,7 @@ export default function App() {
                     onKeyDown={(e) => e.key === "Enter" && addItem()}
                   />
                   {(() => {
-                    const hint = getPriceHint(newItem.name, unmaskCurrency(newItem.price));
+                    const hint = unmaskCurrency(newItem.price) > 0 ? getPriceHint(newItem.name, unmaskCurrency(newItem.price)) : null;
                     if (!hint) return null;
                     return (
                       <div style={{
@@ -1797,6 +1796,11 @@ export default function App() {
                     <div style={{ fontSize: fs, textDecoration: item.checked ? "line-through" : "none", color: item.checked ? t.text4 : t.text, wordBreak: "break-word" }}>
                       {item.name}
                     </div>
+                    {(item.brand || item.weight) && (
+                      <div style={{ fontSize: fs - 4, color: t.text3, marginTop: 1 }}>
+                        {[item.brand, item.weight ? item.weight + (item.unit || "un") : null].filter(Boolean).join(" \u00b7 ")}
+                      </div>
+                    )}
                     <div style={{ fontSize: fs - 3, color: t.text3, display: "flex", alignItems: "center", gap: 5 }}>
                       <span>{item.qty}x {fmt(item.price)}</span>
                       {hint && (
