@@ -292,6 +292,7 @@ export default function App() {
     totalPosition: "top",
     restockEnabled: true,
     priceHistoryMonths: 6, // 1-12 months of price history to consider
+    detailedMode: false, // Modo detalhado (marca, peso, unidade)
     dismissedRestock: [],
   });
   const [data, setData] = useState({ lists: [], priceHistory: {} });
@@ -301,7 +302,7 @@ export default function App() {
   const [activeListId, setActiveListId] = useState(null);
 
   // List detail
-  const [newItem, setNewItem] = useState({ name: "", qty: "", price: "" });
+  const [newItem, setNewItem] = useState({ name: "", qty: "", price: "", brand: "", weight: "", unit: "un" });
   const [autocomplete, setAutocomplete] = useState([]);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [listMenuOpen, setListMenuOpen] = useState(false);
@@ -703,7 +704,7 @@ export default function App() {
     if (!price) return;
     // Get hint BEFORE recording history so comparison uses previous purchases
     const hint = getPriceHint(newItem.name.trim(), price);
-    const item = { id: uid(), name: capitalize(newItem.name.trim()), qty, price, checked: false, priceHint: hint || null };
+    const item = { id: uid(), name: capitalize(newItem.name.trim()), qty, price, checked: false, priceHint: hint || null, brand: newItem.brand.trim() || null, weight: newItem.weight.trim() || null, unit: newItem.unit || "un" };
     const ph = recordPriceHistory(item.name, price, currentList);
     setData((d) => ({
       ...d,
@@ -712,7 +713,7 @@ export default function App() {
         l.id === currentList.id ? { ...l, items: [...l.items, item] } : l
       ),
     }));
-    setNewItem((i) => ({ ...i, name: "", price: "", qty: "" }));
+    setNewItem({ name: "", qty: "", price: "", brand: "", weight: "", unit: "un" });
     setShowAutocomplete(false);
     showToast("Item adicionado!");
   }
@@ -1720,6 +1721,35 @@ export default function App() {
                   })()}
                 </div>
               </div>
+              {/* Campos de Modo Detalhado */}
+              {settings.detailedMode && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 60px", gap: 6, marginBottom: 8 }}>
+                  <input
+                    value={newItem.brand}
+                    onChange={(e) => setNewItem((i) => ({ ...i, brand: e.target.value }))}
+                    placeholder="Marca"
+                    style={{ ...inp, marginTop: 0, fontSize: fs - 2 }}
+                  />
+                  <input
+                    value={newItem.weight}
+                    onChange={(e) => setNewItem((i) => ({ ...i, weight: e.target.value.replace(/[^0-9.]/g, "") }))}
+                    placeholder="Peso"
+                    style={{ ...inp, marginTop: 0, fontSize: fs - 2 }}
+                    inputMode="decimal"
+                  />
+                  <select
+                    value={newItem.unit}
+                    onChange={(e) => setNewItem((i) => ({ ...i, unit: e.target.value }))}
+                    style={{ ...inp, marginTop: 0, fontSize: fs - 2, padding: "0 4px" }}
+                  >
+                    <option value="un">un</option>
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="L">L</option>
+                    <option value="ml">ml</option>
+                  </select>
+                </div>
+              )}
               <button onClick={addItem} style={{ ...primaryBtn, padding: "10px" }}>+ ADICIONAR</button>
             </div>
           </div>

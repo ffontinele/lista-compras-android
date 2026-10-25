@@ -1,0 +1,74 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Compilar React (esbuild) e injetar no index.html
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          node scripts/inject-bundle.js android/app/src/main/assets/public/index.html dist/bundle.js
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar packages do SDK (API 34)
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0" || true
+
+      - name: Descobrir versao do Gradle pelo wrapper
+        id: gv
+        run: |
+          URL=$(grep -o 'distributionUrl=.*' android/gradle/wrapper/gradle-wrapper.properties | tr -d '\r' | cut -d= -f2-)
+          VER=$(echo "$URL" | sed -E 's~.*gradle-([0-9.]+)-(bin|all)\.zip.*~\1~')
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "Gradle do autor: $VER"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ steps.gv.outputs.version }}
+
+      - name: Build APK (debug, assinado automaticamente)
+        run: gradle --no-daemon -p android assembleDebug
+
+      - name: Preparar APK para download
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/debug/app-debug.apk out/ListaDeCompras_ffontinele.apk
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: out/*.apk
+
+      - name: Publicar APK na release apk-dev
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-dev
+          name: "APK Dev - ultima build automatica"
+          prerelease: true
+          make_latest: false
+          files: out/*.apk
