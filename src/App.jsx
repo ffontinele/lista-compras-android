@@ -1648,9 +1648,17 @@ export default function App() {
                     value={newItem.name}
                     onChange={(e) => handleNameInput(e.target.value)}
                     placeholder="Produto"
-                    style={{ ...inp, marginTop: 0 }}
+                    style={{ ...inp, marginTop: 0, paddingRight: newItem.name ? "32px" : "10px" }}
                     onKeyDown={(e) => e.key === "Enter" && addItem()}
                   />
+                  {newItem.name && (
+                    <div
+                      onClick={() => setNewItem({ name: "", qty: "", price: "", brand: "", weight: "", unit: "un" })}
+                      style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", cursor: "pointer", color: t.text3, fontSize: fs + 2, fontWeight: "bold", padding: "4px", zIndex: 60 }}
+                    >
+                      ✕
+                    </div>
+                  )}
                   {showAutocomplete && (
                     <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: t.bg2, border: `1px solid ${t.border}`, borderRadius: 10, zIndex: 50, overflow: "hidden", boxShadow: `0 8px 24px ${t.shadow}` }}>
                       {autocomplete.map((ac) => {
@@ -2687,6 +2695,26 @@ export default function App() {
             </div>
 
             {/* 1 — NAVEGAÇÃO */}
+            <div style={acCard}>
+              <AccordionHeader skey="items" icon="📦" title="Itens" subtitle="Campos extras ao adicionar produtos" />
+              {isOpen("items") && (
+                <div style={body}>
+                  <div style={{ fontSize: fs - 4, letterSpacing: 1, color: t.text3, marginBottom: 10, marginTop: 16 }}>CAMPOS DO ITEM</div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: t.bg3, border: `1px solid ${t.border}`, borderRadius: 10 }}>
+                    <div>
+                      <div style={{ fontSize: fs - 2, color: t.text }}>Modo detalhado</div>
+                      <div style={{ fontSize: fs - 5, color: t.text3, marginTop: 2 }}>Exibe campos de Marca, Peso e Unidade ao adicionar itens</div>
+                    </div>
+                    <div
+                      onClick={() => setSettings((s) => ({ ...s, detailedMode: !s.detailedMode }))}
+                      style={{ width: 48, height: 26, borderRadius: 13, cursor: "pointer", flexShrink: 0, marginLeft: 12, background: settings.detailedMode ? t.accent : t.bg4, position: "relative", transition: "background 0.2s" }}
+                    >
+                      <div style={{ position: "absolute", top: 3, left: settings.detailedMode ? 25 : 3, width: 20, height: 20, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 4px rgba(0,0,0,0.3)" }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             <div style={acCard}>
               <AccordionHeader skey="nav" icon="👆" title="Navegação"
                 subtitle="Escolher personalização"
