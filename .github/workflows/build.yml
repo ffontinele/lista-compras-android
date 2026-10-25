@@ -31,11 +31,16 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Instalar packages do SDK (API 34)
-        run: sdkmanager "platforms;android-34" "build-tools;34.0.0" || true
+      - name: Garantir packages do SDK (API 34) usando o SDK pre-instalado do runner
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          SDKM=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -1)
+          echo "sdkmanager encontrado: $SDKM"
+          if [ -n "$SDKM" ]; then
+            yes | "$SDKM" --install "platforms;android-34" "build-tools;34.0.0" > /dev/null 2>&1 || echo "AVISO: sdkmanager falhou - o Gradle vai baixar automaticamente"
+          else
+            echo "AVISO: sdkmanager nao encontrado - o Gradle vai baixar automaticamente"
+          fi
 
       - name: Descobrir versao do Gradle pelo wrapper
         id: gv
