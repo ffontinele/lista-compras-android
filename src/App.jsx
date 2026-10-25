@@ -697,6 +697,32 @@ export default function App() {
     return { arrow: currentPrice > lastPrice ? "up" : "down", pct, lastPrice };
   }
 
+  const CATALOG = ["Arroz", "Feijao", "Acucar", "Cafe", "Leite", "Pao frances", "Pao de forma", "Macarrao", "Oleo", "Azeite", "Sal", "Farinha de trigo", "Farinha de mandioca", "Ovos", "Carne moida", "Frango", "Linguica", "Queijo", "Manteiga", "Margarina", "Presunto", "Tomate", "Cebola", "Alho", "Batata", "Cenoura", "Banana", "Maca", "Laranja", "Limao", "Papel higienico", "Sabonete", "Shampoo", "Creme dental", "Detergente", "Sabao em po", "Sabao em barra", "Amaciante", "Agua sanitaria", "Esponja de louca", "Saco de lixo", "Papel toalha", "Absorvente", "Fralda", "Gas de cozinha", "Achocolatado", "Biscoito", "Farinha de milho", "Fermento em po", "Milho verde", "Molho de tomate"];
+
+  function createSeedList() {
+    const iso = new Date().toISOString().slice(0, 10);
+    const market = (settings.markets && settings.markets[0]) || "Mercado";
+    const seed = { id: uid(), name: "Mercado do Mes", market, date: iso, items: CATALOG.map((n) => ({ id: uid(), name: n, qty: 1, price: 0, checked: false, priceHint: null })) };
+    setData((d) => ({ ...d, lists: [seed, ...d.lists] }));
+    setActiveListId(seed.id);
+    setView("list-detail");
+    showToast("Lista do mes criada com " + CATALOG.length + " itens!");
+  }
+
+  function handleNameInput(v) {
+    setNewItem((i) => ({ ...i, name: v }));
+    const q = v.trim().toLowerCase();
+    if (!q) { setShowAutocomplete(false); setAutocomplete([]); return; }
+    const pool = [];
+    const seen = new Set();
+    const push = (name, price) => { const k = name.toLowerCase(); if (!seen.has(k)) { seen.add(k); pool.push({ name, lastPrice: price || 0 }); } };
+    Object.entries(data.priceHistory || {}).forEach(([k, arr]) => { if (k.includes(q) && arr && arr.length) push(k, arr[0].price); });
+    (data.lists || []).forEach((l) => (l.items || []).forEach((it) => { if (it.name.toLowerCase().includes(q)) push(it.name, it.price || 0); }));
+    CATALOG.forEach((n) => { if (n.toLowerCase().includes(q)) push(n, 0); });
+    setAutocomplete(pool.slice(0, 8));
+    setShowAutocomplete(pool.length > 0);
+  }
+
   function addItem() {
     if (!newItem.name.trim() || !currentList) return;
     const price = unmaskCurrency(newItem.price);
@@ -1308,7 +1334,7 @@ export default function App() {
             {filteredLists.length === 0 ? (
               <div style={{ textAlign: "center", padding: "50px 0", color: t.text4 }}>
                 <div style={{ fontSize: 38 }}>🛒</div>
-                <div style={{ marginTop: 10, fontSize: fs }}>Nenhuma lista encontrada</div>
+                <div style={{ marginTop: 10, fontSize: fs }}>Nenhuma lista encontrada</div>\n              <button onClick={createSeedList} style={{ ...primaryBtn, padding: "12px 18px", marginTop: 18 }}>\u{1F6D2} CRIAR LISTA DO MES (ITENS BASICOS)</button>\n              <div style={{ display: "none" }}></div>
               </div>
 ) : (() => {
               const now = new Date();

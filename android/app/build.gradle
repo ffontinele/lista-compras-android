@@ -3,6 +3,14 @@ android {
     namespace 'com.ffontinele.listadecompras'
     compileSdk 34
     defaultConfig { applicationId "com.ffontinele.listadecompras"; minSdk 22; targetSdk 34; versionCode 182; versionName "1.8.2-ffontinele" }
-    buildTypes { release { minifyEnabled false; proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' } }
+    signingConfigs {
+        release {
+            storeFile file("lista-ffontinele.keystore")
+            storePassword "lista2026"
+            keyAlias "lista"
+            keyPassword "lista2026"
+        }
+    }
+    buildTypes { release { signingConfig signingConfigs.release; minifyEnabled false; proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' } }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
