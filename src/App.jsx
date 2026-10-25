@@ -1334,7 +1334,7 @@ export default function App() {
             {filteredLists.length === 0 ? (
               <div style={{ textAlign: "center", padding: "50px 0", color: t.text4 }}>
                 <div style={{ fontSize: 38 }}>🛒</div>
-                <div style={{ marginTop: 10, fontSize: fs }}>Nenhuma lista encontrada</div>\n              <button onClick={createSeedList} style={{ ...primaryBtn, padding: "12px 18px", marginTop: 18 }}>\u{1F6D2} CRIAR LISTA DO MES (ITENS BASICOS)</button>\n              <div style={{ display: "none" }}></div>
+                <div style={{ marginTop: 10, fontSize: fs }}>Nenhuma lista encontrada</div>\n              <button onClick={createSeedList} style={{ ...primaryBtn, padding: "12px 18px", marginTop: 18 }}>{"\u{1F6D2}"} CRIAR LISTA DO MES (ITENS BASICOS)</button>\n              <div style={{ display: "none" }}></div>
               </div>
 ) : (() => {
               const now = new Date();
