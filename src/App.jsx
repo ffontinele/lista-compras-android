@@ -2044,7 +2044,6 @@ export default function App() {
                 <button onClick={favoriteTyped} title="Favoritar produto digitado" style={{ ...primaryBtn, padding: "10px", flex: 0, background: t.bg3, color: t.accent, border: `1px solid ${t.border}` }}>★</button>
                 <button onClick={() => setFavOpen("list")} title="Favoritos" style={{ ...primaryBtn, padding: "10px", flex: 0, background: t.bg3, color: t.accent, border: `1px solid ${t.border}` }}>⭐{(data.favorites || []).length ? (data.favorites || []).length : ""}</button>
               </div>
-              }
             </div>
           </div>
 
