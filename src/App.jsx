@@ -698,7 +698,7 @@ export default function App() {
     return { arrow: currentPrice > lastPrice ? "up" : "down", pct, lastPrice };
   }
 
-  const CATALOG = ["Arroz", "Feijao", "Acucar", "Cafe", "Leite", "Pao frances", "Pao de forma", "Macarrao", "Oleo", "Azeite", "Sal", "Farinha de trigo", "Farinha de mandioca", "Ovos", "Carne moida", "Frango", "Linguica", "Queijo", "Manteiga", "Margarina", "Presunto", "Tomate", "Cebola", "Alho", "Batata", "Cenoura", "Banana", "Maca", "Laranja", "Limao", "Papel higienico", "Sabonete", "Shampoo", "Creme dental", "Detergente", "Sabao em po", "Sabao em barra", "Amaciante", "Agua sanitaria", "Esponja de louca", "Saco de lixo", "Papel toalha", "Absorvente", "Fralda", "Gas de cozinha", "Achocolatado", "Biscoito", "Farinha de milho", "Fermento em po", "Milho verde", "Molho de tomate"];
+  const CATALOG = ["Arroz", "Feijao", "Acucar", "Cafe", "Leite", "Pao frances", "Pao de forma", "Macarrao", "Oleo", "Azeite", "Sal", "Farinha de trigo", "Farinha de mandioca", "Ovos", "Carne moida", "Frango", "Linguica", "Queijo", "Manteiga", "Margarina", "Presunto", "Tomate", "Cebola", "Alho", "Batata", "Cenoura", "Banana", "Maca", "Laranja", "Limao", "Papel higienico", "Sabonete", "Shampoo", "Creme dental", "Detergente", "Sabao em po", "Sabao em barra", "Amaciante", "Agua sanitaria", "Esponja de louca", "Saco de lixo", "Papel toalha", "Absorvente", "Fralda", "Gas de cozinha", "Achocolatado", "Biscoito", "Farinha de milho", "Fermento em po", "Milho verde", "Molho de tomate", "Leite condensado", "Creme de leite", "Gelatina", "Tempero pronto", "Colorau", "Oregano", "Cheiro verde", "Abobora", "Abobrinha", "Chuchu", "Pepino", "Alface", "Couve", "Mamao", "Melancia", "Uva", "Morango", "Iogurte", "Requeijao", "Suco em po", "Desodorante", "Algodao", "Cotonete", "Desinfetante", "Inseticida", "Limpa vidros", "Multiuso", "Pano de chao", "Carvao"];
 
   function favKey(f) { return (f.name || "").toLowerCase() + "|" + (f.brand || "").toLowerCase(); }
 
@@ -1428,6 +1428,7 @@ export default function App() {
                 </div>
               )}
             </div>
+            <button onClick={createSeedList} style={{ ...primaryBtn, marginTop: 10, background: t.bg3, color: t.accent, border: `1px solid ${t.accentBorder}` }}>🛒 CRIAR LISTA DO MES PRONTA ({CATALOG.length} itens)</button>
 
           </div>
 
