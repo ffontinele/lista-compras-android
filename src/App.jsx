@@ -306,6 +306,9 @@ export default function App() {
   const [autocomplete, setAutocomplete] = useState([]);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [favOpen, setFavOpen] = useState(false);
+  const [seedOpen, setSeedOpen] = useState(false);
+  const [seedCat, setSeedCat] = useState(null);
+  const [seedSel, setSeedSel] = useState({});
   const [listMenuOpen, setListMenuOpen] = useState(false);
   const [listMenuSection, setListMenuSection] = useState(null); // "sort"|"filter"|"total"|null
   const [listPriceFilter, setListPriceFilter] = useState(null); // null | "cheaper" | "pricier"
@@ -698,7 +701,23 @@ export default function App() {
     return { arrow: currentPrice > lastPrice ? "up" : "down", pct, lastPrice };
   }
 
-  const CATALOG = ["Arroz", "Feijao", "Acucar", "Cafe", "Leite", "Pao frances", "Pao de forma", "Macarrao", "Oleo", "Azeite", "Sal", "Farinha de trigo", "Farinha de mandioca", "Ovos", "Carne moida", "Frango", "Linguica", "Queijo", "Manteiga", "Margarina", "Presunto", "Tomate", "Cebola", "Alho", "Batata", "Cenoura", "Banana", "Maca", "Laranja", "Limao", "Papel higienico", "Sabonete", "Shampoo", "Creme dental", "Detergente", "Sabao em po", "Sabao em barra", "Amaciante", "Agua sanitaria", "Esponja de louca", "Saco de lixo", "Papel toalha", "Absorvente", "Fralda", "Gas de cozinha", "Achocolatado", "Biscoito", "Farinha de milho", "Fermento em po", "Milho verde", "Molho de tomate", "Leite condensado", "Creme de leite", "Gelatina", "Tempero pronto", "Colorau", "Oregano", "Cheiro verde", "Abobora", "Abobrinha", "Chuchu", "Pepino", "Alface", "Couve", "Mamao", "Melancia", "Uva", "Morango", "Iogurte", "Requeijao", "Suco em po", "Desodorante", "Algodao", "Cotonete", "Desinfetante", "Inseticida", "Limpa vidros", "Multiuso", "Pano de chao", "Carvao"];
+  const CATALOG_CATS = [
+    { name: "🍚 Mercearia", items: ["Arroz", "Feijao", "Acucar", "Cafe", "Sal", "Oleo", "Azeite", "Macarrao", "Macarrao instantaneo", "Farinha de trigo", "Farinha de mandioca", "Fermento em po", "Molho de tomate", "Tempero pronto", "Colorau", "Oregano", "Vinagre", "Maionese", "Ketchup", "Mostarda", "Mel", "Achocolatado", "Suco em po", "Gelatina", "Biscoito"] },
+    { name: "🌾 Cereais & Graos", items: ["Aveia em flocos", "Granola", "Milho para pipoca", "Canjica", "Lentilha", "Grao-de-bico", "Fuba", "Polvilho doce", "Goma de tapioca", "Flocos de milho", "Arroz integral", "Farinha de rosca"] },
+    { name: "🥬 Hortifruti", items: ["Tomate", "Cebola", "Alho", "Batata", "Batata doce", "Cenoura", "Mandioca", "Beterraba", "Brocolis", "Couve-flor", "Couve", "Alface", "Pimentao", "Berinjela", "Abobora", "Abobrinha", "Chuchu", "Pepino", "Cheiro verde", "Banana", "Maca", "Laranja", "Limao", "Mamao", "Melancia", "Melao", "Abacaxi", "Manga", "Pera", "Abacate", "Uva", "Morango"] },
+    { name: "🧀 Frios & Laticinios", items: ["Leite", "Queijo", "Mussarela", "Presunto", "Peito de peru", "Manteiga", "Margarina", "Iogurte", "Requeijao", "Cream cheese", "Nata", "Queijo ralado", "Leite condensado", "Creme de leite"] },
+    { name: "🥩 Acougue & Proteinas", items: ["Carne moida", "Carne em cubos", "Bife", "Costela", "Frango", "Linguica", "Bacon", "Carne seca", "Salame", "Tilapia", "Camarao", "Ovos"] },
+    { name: "🍞 Padaria", items: ["Pao frances", "Pao de forma", "Pao doce", "Pao de queijo", "Croissant", "Torrada"] },
+    { name: "🧃 Bebidas", items: ["Agua mineral", "Refrigerante", "Suco de caixa", "Suco de uva integral", "Cerveja", "Cha de caixa", "Leite de coco", "Agua de coco"] },
+    { name: "🍫 Doces & Guloseimas", items: ["Chocolate", "Bombom", "Pacoca", "Doce de leite", "Bala", "Chiclete", "Sorvete", "Maria-mole"] },
+    { name: "🧴 Higiene Pessoal", items: ["Papel higienico", "Sabonete", "Shampoo", "Condicionador", "Creme dental", "Escova dental", "Fio dental", "Desodorante", "Absorvente", "Fralda", "Algodao", "Cotonete", "Protetor solar", "Repelente", "Sabonete intimo"] },
+    { name: "🧼 Limpeza", items: ["Detergente", "Sabao em po", "Sabao em barra", "Amaciante", "Agua sanitaria", "Desinfetante", "Inseticida", "Limpa vidros", "Multiuso", "Tira-manchas", "Bicarbonato de sodio", "Esponja de louca", "Esponja de aco", "Saco de lixo", "Papel toalha", "Guardanapo", "Pano de chao", "Pano de prato", "Luva de limpeza"] },
+    { name: "🏠 Casa & Utilidades", items: ["Papel aluminio", "Filme plastico", "Fosforo", "Vela", "Pilha AA", "Pilha AAA", "Lampada", "Copo descartavel", "Prato descartavel"] },
+    { name: "💊 Farmacia Basica", items: ["Analgesico", "Antitermico", "Antiacido", "Antialergico", "Curativo", "Alcool 70", "Agua oxigenada"] },
+    { name: "🐶 Pets", items: ["Racao de cao", "Racao de gato", "Areia sanitaria", "Petisco para cao", "Petisco para gato"] },
+    { name: "🔥 Churrasco & Outros", items: ["Gas de cozinha", "Carvao", "Sal grosso", "Espeto de madeira", "Acendedor de churrasqueira"] },
+  ];
+  const CATALOG = CATALOG_CATS.reduce((a, c) => a.concat(c.items), []);
 
   function favKey(f) { return (f.name || "").toLowerCase() + "|" + (f.brand || "").toLowerCase(); }
 
@@ -746,14 +765,39 @@ export default function App() {
     });
   }, [newItem.name]);
 
-  function createSeedList() {
+  function openSeedModal() {
+    setSeedSel((s) => {
+      if (Object.keys(s).length === 0) { const all = {}; CATALOG.forEach((n) => { all[n] = true; }); return all; }
+      return s;
+    });
+    setSeedCat(null);
+    setSeedOpen(true);
+  }
+
+  function createCategoryList(c) {
     const iso = new Date().toISOString().slice(0, 10);
     const market = (settings.markets && settings.markets[0]) || "Mercado";
-    const seed = { id: uid(), name: "Mercado do Mes", market, date: iso, items: CATALOG.map((n) => ({ id: uid(), name: n, qty: 1, price: 0, checked: false, priceHint: null })) };
+    const chosen = c.items.filter((n) => seedSel[n]);
+    if (!chosen.length) { showToast("Marque ao menos um item desta categoria"); return; }
+    const seed = { id: uid(), name: c.name, market, date: iso, items: chosen.map((n) => ({ id: uid(), name: n, qty: 1, price: 0, checked: false, priceHint: null })) };
     setData((d) => ({ ...d, lists: [seed, ...d.lists] }));
     setActiveListId(seed.id);
     setView("list-detail");
-    showToast("Lista do mes criada com " + CATALOG.length + " itens!");
+    setSeedOpen(false);
+    showToast("Lista " + c.name + " criada com " + chosen.length + " itens!");
+  }
+
+  function createSeedList() {
+    const iso = new Date().toISOString().slice(0, 10);
+    const market = (settings.markets && settings.markets[0]) || "Mercado";
+    const chosen = CATALOG.filter((n) => seedSel[n]);
+    if (!chosen.length) { showToast("Selecione ao menos um item"); return; }
+    const seed = { id: uid(), name: "Mercado do Mes", market, date: iso, items: chosen.map((n) => ({ id: uid(), name: n, qty: 1, price: 0, checked: false, priceHint: null })) };
+    setData((d) => ({ ...d, lists: [seed, ...d.lists] }));
+    setActiveListId(seed.id);
+    setView("list-detail");
+    setSeedOpen(false);
+    showToast("Lista do mes criada com " + chosen.length + " itens!");
   }
 
   function handleNameInput(v) {
@@ -1114,6 +1158,52 @@ export default function App() {
     >
 
       {/* -- TOAST -- */}
+  {seedOpen && (
+    <div style={{ position: "fixed", inset: 0, zIndex: 860, display: "flex", flexDirection: "column" }}>
+      <div onClick={() => setSeedOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
+      <div style={{ position: "relative", zIndex: 1, marginTop: "auto", width: "100%", maxWidth: 430, marginLeft: "auto", marginRight: "auto", background: t.bg2, borderRadius: "20px 20px 0 0", maxHeight: "80vh", display: "flex", flexDirection: "column", border: `1px solid ${t.border}` }}>
+        <div style={{ padding: "18px 20px 12px", borderBottom: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: fs + 1, fontWeight: "bold" }}>🛒 Mercado por Categorias</div>
+            <div style={{ fontSize: fs - 4, color: t.text3, marginTop: 2 }}>Toque numa categoria para ver e escolher os itens</div>
+          </div>
+          <button onClick={() => setSeedOpen(false)} style={{ background: t.bg3, border: "none", color: t.text2, width: 32, height: 32, borderRadius: 8, cursor: "pointer", fontSize: 16 }}>✕</button>
+        </div>
+        <div style={{ overflowY: "auto", flex: 1, padding: "12px 16px" }}>
+          {CATALOG_CATS.map((c) => {
+            const selCount = c.items.filter((n) => seedSel[n]).length;
+            const open = seedCat === c.name;
+            return (
+              <div key={c.name} style={{ marginBottom: 8, background: t.bg3, border: `1px solid ${t.border}`, borderRadius: 10, overflow: "hidden" }}>
+                <div onClick={() => setSeedCat(open ? null : c.name)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", cursor: "pointer" }}>
+                  <div style={{ fontSize: fs - 1, fontWeight: "bold", color: t.text }}>{c.name}</div>
+                  <div style={{ fontSize: fs - 4, color: selCount === c.items.length ? t.accent : t.text3 }}>{selCount}/{c.items.length} {open ? "▴" : "▾"}</div>
+                </div>
+                {open && (
+                  <div style={{ padding: "4px 12px 12px" }}>
+                    <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                      <button onClick={() => setSeedSel((s) => { const u = { ...s }; c.items.forEach((n) => { u[n] = true; }); return u; })} style={{ flex: 1, background: t.accentBg, border: `1px solid ${t.accentBorder}`, color: t.accent, borderRadius: 8, padding: "6px", fontSize: fs - 4, cursor: "pointer", fontFamily: "inherit" }}>Marcar todos</button>
+                      <button onClick={() => setSeedSel((s) => { const u = { ...s }; c.items.forEach((n) => { u[n] = false; }); return u; })} style={{ flex: 1, background: t.bg2, border: `1px solid ${t.border}`, color: t.text3, borderRadius: 8, padding: "6px", fontSize: fs - 4, cursor: "pointer", fontFamily: "inherit" }}>Desmarcar</button>
+                    </div>
+                    {c.items.map((n) => (
+                      <div key={n} onClick={() => setSeedSel((s) => ({ ...s, [n]: !s[n] }))} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 4px", borderBottom: `1px solid ${t.bg2}`, cursor: "pointer" }}>
+                        <div style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${seedSel[n] ? t.accent : t.bg4}`, background: seedSel[n] ? t.accent : "transparent", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: fs - 4, color: t.accentText }}>{seedSel[n] ? "✓" : ""}</div>
+                        <div style={{ fontSize: fs - 2, color: seedSel[n] ? t.text : t.text4 }}>{n}</div>
+                      </div>
+                    ))}
+                    <button onClick={() => createCategoryList(c)} style={{ width: "100%", marginTop: 10, background: t.accentBg, border: `1px solid ${t.accentBorder}`, color: t.accent, borderRadius: 8, padding: "10px", fontSize: fs - 3, cursor: "pointer", fontFamily: "inherit", fontWeight: "bold" }}>➕ CRIAR LISTA DESTA CATEGORIA ({c.items.filter((n) => seedSel[n]).length} marcados)</button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ padding: "12px 16px", borderTop: `1px solid ${t.border}` }}>
+          <button onClick={createSeedList} style={{ ...primaryBtn, padding: "12px" }}>➕ CRIAR LISTA COM {CATALOG.filter((n) => seedSel[n]).length} ITENS</button>
+        </div>
+      </div>
+    </div>
+  )}
   {favOpen && (
     <div style={{ position: "fixed", inset: 0, zIndex: 850, display: "flex", flexDirection: "column" }}>
       <div onClick={() => setFavOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
@@ -1428,7 +1518,7 @@ export default function App() {
                 </div>
               )}
             </div>
-            <button onClick={createSeedList} style={{ ...primaryBtn, marginTop: 10, background: t.bg3, color: t.accent, border: `1px solid ${t.accentBorder}` }}>🛒 CRIAR LISTA DO MES PRONTA ({CATALOG.length} itens)</button>
+            <button onClick={openSeedModal} style={{ ...primaryBtn, marginTop: 10, background: t.bg3, color: t.accent, border: `1px solid ${t.accentBorder}` }}>🛒 CRIAR LISTA DO MES PRONTA ({CATALOG.length} itens)</button>
 
           </div>
 
@@ -1436,7 +1526,7 @@ export default function App() {
             {filteredLists.length === 0 ? (
               <div style={{ textAlign: "center", padding: "50px 0", color: t.text4 }}>
                 <div style={{ fontSize: 38 }}>🛒</div>
-                <div style={{ marginTop: 10, fontSize: fs }}>Nenhuma lista encontrada</div>\n              <button onClick={createSeedList} style={{ ...primaryBtn, padding: "12px 18px", marginTop: 18 }}>{"\u{1F6D2}"} CRIAR LISTA DO MES (ITENS BASICOS)</button>\n              <div style={{ display: "none" }}></div>
+                <div style={{ marginTop: 10, fontSize: fs }}>Nenhuma lista encontrada</div>\n              <button onClick={openSeedModal} style={{ ...primaryBtn, padding: "12px 18px", marginTop: 18 }}>{"\u{1F6D2}"} CRIAR LISTA DO MES (ITENS BASICOS)</button>\n              <div style={{ display: "none" }}></div>
               </div>
 ) : (() => {
               const now = new Date();
