@@ -1114,6 +1114,39 @@ export default function App() {
     >
 
       {/* -- TOAST -- */}
+  {favOpen && (
+    <div style={{ position: "fixed", inset: 0, zIndex: 850, display: "flex", flexDirection: "column" }}>
+      <div onClick={() => setFavOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
+      <div style={{ position: "relative", zIndex: 1, marginTop: "auto", width: "100%", maxWidth: 430, marginLeft: "auto", marginRight: "auto", background: t.bg2, borderRadius: "20px 20px 0 0", maxHeight: "70vh", display: "flex", flexDirection: "column", border: `1px solid ${t.border}` }}>
+        <div style={{ padding: "18px 20px 12px", borderBottom: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: fs + 1, fontWeight: "bold" }}>⭐ Favoritos</div>
+            <div style={{ fontSize: fs - 4, color: t.text3, marginTop: 2 }}>{favOpen === "list" ? "Toque em + LISTA para enviar à lista aberta" : "Sua pasta permanente de itens frequentes"}</div>
+          </div>
+          <button onClick={() => setFavOpen(false)} style={{ background: t.bg3, border: "none", color: t.text2, width: 32, height: 32, borderRadius: 8, cursor: "pointer", fontSize: 16 }}>✕</button>
+        </div>
+        <div style={{ overflowY: "auto", flex: 1, padding: "12px 16px" }}>
+          {(data.favorites || []).length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 0", color: t.text4 }}>
+              <div style={{ fontSize: 32 }}>⭐</div>
+              <div style={{ marginTop: 10, fontSize: fs - 1 }}>Nenhum favorito ainda</div>
+              <div style={{ marginTop: 6, fontSize: fs - 3, color: t.text3 }}>Toque na ★ de um item para guardar aqui</div>
+            </div>
+          ) : (data.favorites || []).map((f) => (
+            <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: t.bg3, border: `1px solid ${t.border}`, borderRadius: 10, marginBottom: 8 }}>
+              <div onClick={() => setData((d) => ({ ...d, favorites: (d.favorites || []).map((fv) => fv.id === f.id ? { ...fv, checked: !fv.checked } : fv) }))} style={{ width: 22, height: 22, borderRadius: 6, border: `2px solid ${f.checked ? t.accent : t.bg4}`, background: f.checked ? t.accent : "transparent", cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: fs - 3, color: t.accentText }}>{f.checked ? "✓" : ""}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: fs - 1, fontWeight: "bold", color: f.checked ? t.text4 : t.text, textDecoration: f.checked ? "line-through" : "none" }}>{f.name}</div>
+                {(f.brand || f.weight) ? (<div style={{ fontSize: fs - 4, color: t.text3, marginTop: 2 }}>{[f.brand, f.weight ? f.weight + (f.unit || "un") : null].filter(Boolean).join(" · ")}</div>) : null}
+              </div>
+              {favOpen === "list" ? (<button onClick={() => addFavToCurrent(f)} style={{ background: t.accentBg, border: `1px solid ${t.accentBorder}`, color: t.accent, borderRadius: 8, padding: "6px 10px", fontSize: fs - 3, cursor: "pointer", fontFamily: "inherit", fontWeight: "bold" }}>+ LISTA</button>) : null}
+              <button onClick={() => toggleFavorite(f)} style={{ background: t.upBg, border: `1px solid ${t.up}33`, color: t.up, borderRadius: 8, padding: "6px 10px", fontSize: fs - 3, cursor: "pointer", fontFamily: "inherit" }}>🗑</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
       {toast && (
         <div style={{
           position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)",
@@ -1375,6 +1408,27 @@ export default function App() {
                 )}
               </div>
             )}
+            <div onClick={() => setFavOpen("home")} style={{ marginTop: 10, background: t.bg2, border: `1px solid ${t.accentBorder}`, borderRadius: 14, padding: "14px 16px", cursor: "pointer" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: fs + 4 }}>⭐</span>
+                  <div>
+                    <div style={{ fontSize: fs, fontWeight: "bold", color: t.accent }}>Favoritos</div>
+                    <div style={{ fontSize: fs - 4, color: t.text3, marginTop: 2 }}>{(data.favorites || []).length ? (data.favorites || []).length + " itens frequentes" : "Toque para ver seus itens frequentes"}</div>
+                  </div>
+                </div>
+                <span style={{ color: t.text4, fontSize: fs + 2 }}>›</span>
+              </div>
+              {(data.favorites || []).length > 0 && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
+                  {(data.favorites || []).slice(0, 5).map((f) => (
+                    <span key={f.id} style={{ fontSize: fs - 4, color: t.text3, background: t.bg3, borderRadius: 6, padding: "3px 8px" }}>{f.name}</span>
+                  ))}
+                  {(data.favorites || []).length > 5 && <span style={{ fontSize: fs - 4, color: t.text4 }}>+{(data.favorites || []).length - 5}</span>}
+                </div>
+              )}
+            </div>
+
           </div>
 
           <div style={{ padding: "14px 24px 0" }}>
@@ -1833,37 +1887,9 @@ export default function App() {
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={addItem} style={{ ...primaryBtn, padding: "10px", flex: 1 }}>+ ADICIONAR</button>
                 <button onClick={favoriteTyped} title="Favoritar produto digitado" style={{ ...primaryBtn, padding: "10px", flex: 0, background: t.bg3, color: t.accent, border: `1px solid ${t.border}` }}>★</button>
-                <button onClick={() => setFavOpen(true)} title="Favoritos" style={{ ...primaryBtn, padding: "10px", flex: 0, background: t.bg3, color: t.accent, border: `1px solid ${t.border}` }}>⭐{(data.favorites || []).length ? (data.favorites || []).length : ""}</button>
+                <button onClick={() => setFavOpen("list")} title="Favoritos" style={{ ...primaryBtn, padding: "10px", flex: 0, background: t.bg3, color: t.accent, border: `1px solid ${t.border}` }}>⭐{(data.favorites || []).length ? (data.favorites || []).length : ""}</button>
               </div>
-              {favOpen && (
-                <div style={{ position: "fixed", inset: 0, zIndex: 800, display: "flex", flexDirection: "column" }}>
-                  <div onClick={() => setFavOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
-                  <div style={{ position: "relative", zIndex: 1, marginTop: "auto", width: "100%", maxWidth: 430, marginLeft: "auto", marginRight: "auto", background: t.bg2, borderRadius: "20px 20px 0 0", maxHeight: "70vh", display: "flex", flexDirection: "column", border: `1px solid ${t.border}` }}>
-                    <div style={{ padding: "18px 20px 12px", borderBottom: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontSize: fs + 1, fontWeight: "bold" }}>⭐ Favoritos</div>
-                      <button onClick={() => setFavOpen(false)} style={{ background: t.bg3, border: "none", color: t.text2, width: 32, height: 32, borderRadius: 8, cursor: "pointer", fontSize: 16 }}>✕</button>
-                    </div>
-                    <div style={{ overflowY: "auto", flex: 1, padding: "12px 16px" }}>
-                      {(data.favorites || []).length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "40px 0", color: t.text4 }}>
-                          <div style={{ fontSize: 32 }}>⭐</div>
-                          <div style={{ marginTop: 10, fontSize: fs - 1 }}>Nenhum favorito ainda</div>
-                          <div style={{ marginTop: 6, fontSize: fs - 3, color: t.text3 }}>Digite um produto e toque em ★ para favoritar</div>
-                        </div>
-                      ) : (data.favorites || []).map((f) => (
-                        <div key={f.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", background: t.bg3, border: `1px solid ${t.border}`, borderRadius: 10, marginBottom: 8 }}>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: fs - 1, fontWeight: "bold", color: t.text }}>{f.name}</div>
-                            {(f.brand || f.weight) ? (<div style={{ fontSize: fs - 4, color: t.text3, marginTop: 2 }}>{[f.brand, f.weight ? f.weight + (f.unit || "un") : null].filter(Boolean).join(" · ")}</div>) : null}
-                          </div>
-                          <button onClick={() => addFavToCurrent(f)} style={{ background: t.accentBg, border: `1px solid ${t.accentBorder}`, color: t.accent, borderRadius: 8, padding: "6px 10px", fontSize: fs - 3, cursor: "pointer", fontFamily: "inherit", fontWeight: "bold" }}>+ LISTA</button>
-                          <button onClick={() => toggleFavorite(f)} style={{ background: t.upBg, border: `1px solid ${t.up}33`, color: t.up, borderRadius: 8, padding: "6px 10px", fontSize: fs - 3, cursor: "pointer", fontFamily: "inherit" }}>🗑</button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+              }
             </div>
           </div>
 
@@ -1931,7 +1957,8 @@ export default function App() {
                   <div style={{ color: item.checked ? t.text4 : t.accent, fontWeight: "bold", fontSize: fs }}>
                     {fmt(item.qty * item.price)}
                   </div>
-                  <button
+                      <button onClick={() => toggleFavorite({ name: item.name, brand: item.brand, weight: item.weight, unit: item.unit })} title="Favoritar" style={{ background: "none", border: "none", color: (data.favorites || []).some((fv) => fv.name.toLowerCase() === item.name.toLowerCase()) ? t.accent : t.text4, fontSize: fs + 2, cursor: "pointer", padding: "4px 8px", flexShrink: 0 }}>★</button>
+                      <button
                     onClick={() => setEditingItem({ ...item, price: maskCurrency(String(Math.round(item.price * 100))), qty: item.qty.toString() })}
                     style={{ background: "none", border: "none", color: t.text3, cursor: "pointer", fontSize: fs + 1, padding: "0 2px" }}
                   >
