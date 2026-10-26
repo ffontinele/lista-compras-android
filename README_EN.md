@@ -63,8 +63,8 @@ A native Android shopping list app with price history, spending analysis, and mu
 
 ## 📱 Download & Installation
 
-1. Go to the [Releases](https://github.com/thespation/lista-compras-android/releases) page
-2. Download `app-release.apk`
+1. Go to the [Releases](https://github.com/ffontinele/lista-compras-android/releases/tag/v1.8.2-ffontinele) page
+2. Download `ListaDeCompras_v1.8.2-ffontinele.apk`
 3. On Android: **Settings → Security → Install unknown apps** → enable for your file manager
 4. Open the APK and tap **Install**
 

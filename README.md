@@ -1,4 +1,5 @@
 # 🛒 Lista de Compras
+> **Edição ffontinele** (base v1.8.2) — baseado no projeto original de thespation (licença MIT).
 
 > **[🇺🇸 Read in English](README_EN.md)**
 
@@ -62,8 +63,8 @@ Aplicativo Android nativo para gerenciar listas de compras com histórico de pre
 
 ## 📱 Download e Instalação
 
-1. Acesse a página de [Releases](https://github.com/thespation/lista-compras-android/releases)
-2. Baixe o arquivo `app-release.apk`
+1. Acesse a página de [Releases](https://github.com/ffontinele/lista-compras-android/releases/tag/v1.8.2-ffontinele)
+2. Baixe o arquivo `ListaDeCompras_v1.8.2-ffontinele.apk`
 3. No Android: **Configurações → Segurança → Instalar apps desconhecidos** → ative para o gerenciador de arquivos
 4. Abra o APK e toque em **Instalar**
 

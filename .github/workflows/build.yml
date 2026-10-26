@@ -69,11 +69,16 @@ jobs:
           name: ListaDeCompras_v1.8.2-ffontinele
           path: out/*.apk
 
-      - name: Publicar APK na release apk-dev
+      - name: Publicar APK na release oficial v1.8.2-ffontinele
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: apk-dev
-          name: "APK Dev - ultima build automatica"
-          prerelease: true
-          make_latest: false
+          tag_name: v1.8.2-ffontinele
+          name: "v1.8.2 ffontinele - Lista de Compras"
+          prerelease: false
+          body: |
+            Edicao ffontinele (base 1.8.2) - build automatico.
+            Inclui: Favoritos, Lista do Mes por categorias (177 itens), Tutorial,
+            Modo Detalhado, listas rascunho e versao web (PWA).
+            Instale por cima da versao anterior (mesma assinatura).
+          make_latest: true
           files: out/*.apk
