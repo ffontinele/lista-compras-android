@@ -307,6 +307,7 @@ export default function App() {
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const [favOpen, setFavOpen] = useState(false);
   const [seedOpen, setSeedOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [seedCat, setSeedCat] = useState(null);
   const [seedSel, setSeedSel] = useState({});
   const [listMenuOpen, setListMenuOpen] = useState(false);
@@ -765,6 +766,55 @@ export default function App() {
     });
   }, [newItem.name]);
 
+  const HELP_SECTIONS = [
+    { icon: "🏠", title: "Tela inicial (Listas)", steps: [
+      "No topo voce ve o resumo: quantas listas, gasto deste mes e produtos registrados.",
+      "Em 'Buscar historico de preco de item', digite um produto para ver os precos das compras antigas.",
+      "'+ NOVA LISTA' cria uma lista vazia com nome, mercado e data.",
+      "O cartao '⭐ Favoritos' e a sua pasta permanente de itens frequentes.",
+      "'🛒 CRIAR LISTA DO MES PRONTA' gera listas prontas por categoria." ] },
+    { icon: "🛒", title: "Lista do Mes por categorias", steps: [
+      "Toque no botao para abrir o painel com as categorias (Mercearia, Hortifruti, Limpeza...).",
+      "Toque numa categoria para ver SOMENTE os itens dela.",
+      "Marque e desmarque itens tocando neles; use 'Marcar todos' ou 'Desmarcar' por categoria.",
+      "'➕ CRIAR LISTA DESTA CATEGORIA' cria uma lista com o NOME da categoria e so os itens marcados dela.",
+      "O botao do rodape cria uma lista unica mista ('Mercado do Mes') com todos os marcados." ] },
+    { icon: "✍️", title: "Adicionar itens a uma lista", steps: [
+      "Digite o produto: enquanto digita, aparecem sugestoes do seu historico, das suas listas e do catalogo.",
+      "Preencha quantidade e preco. O preco pode ficar vazio (lista rascunho): o total vira '≈ TOTAL'.",
+      "A seta ▲/▼ ao lado do preco compara com a ultima compra daquele produto.",
+      "Em Configuracoes > Itens, ative o 'Modo detalhado' para ganhar campos de Marca, Peso e Unidade.",
+      "Botao ★ favorita o produto digitado; botao ⭐ abre a pasta de Favoritos." ] },
+    { icon: "⭐", title: "Favoritos (itens frequentes)", steps: [
+      "Dentro de uma lista, toque na ★ que fica entre o preco e o lapis para favoritar aquele item.",
+      "O cartao '⭐ Favoritos' na tela inicial abre a pasta com todos os seus favoritos.",
+      "Dentro da pasta: o checkbox marca/desmarca (risca o nome) e a lixeira 🗑 remove o favorito.",
+      "Se abrir a pasta de dentro de uma lista (botao ⭐), aparece '+ LISTA' para jogar o favorito na lista aberta." ] },
+    { icon: "✅", title: "Durante as compras", steps: [
+      "Toque no quadradinho do item para marcar como comprado (ele fica riscado).",
+      "O lapis ✏️ edita nome, quantidade e preco do item.",
+      "No menu ⋮ do topo da lista: ordenar, filtrar por preco, mover o total e exportar a lista.",
+      "Na tela inicial, '⧉ Duplicar' copia uma lista inteira (com opcao de zerar os precos)." ] },
+    { icon: "📊", title: "Aba Analise", steps: [
+      "Mensal: total do mes, comparacao com o mes anterior e itens acima da media historica.",
+      "Anual: barras por mes em cada ano; toque numa barra para abrir aquele mes.",
+      "Produtos: busca e filtros de periodo, mercado e ordenacao.",
+      "Toque num produto para ver historico de preco, minimo/media/maximo e o mercado mais barato." ] },
+    { icon: "⚙️", title: "Configuracoes", steps: [
+      "Tema: modo escuro/claro e paletas de cores (da para criar a sua).",
+      "Tamanho da fonte: ajuste de 11 a 22.",
+      "Navegacao: alerta de reposicao, vibracao, posicao da barra e botao voltar.",
+      "Itens: ativa o Modo detalhado (marca, peso e unidade).",
+      "Dados: salvar configuracoes, restaurar, exportar tudo, importar e apagar." ] },
+    { icon: "💾", title: "Seus dados e backups", steps: [
+      "Tudo fica salvo SOMENTE no seu celular - nao precisa de internet.",
+      "'Exportar tudo' gera um arquivo de backup para guardar ou mandar por WhatsApp/Drive.",
+      "'Importar' restaura um backup no mesmo celular ou em outro.",
+      "Antes de importar ou apagar, o app salva um backup automatico sozinho." ] },
+    { icon: "❓", title: "Precisa de ajuda de novo?", steps: [
+      "Toque no botao flutuante '❓ Tutorial' (canto inferior direito) em qualquer tela para reabrir este guia." ] },
+  ];
+
   function openSeedModal() {
     setSeedSel((s) => {
       if (Object.keys(s).length === 0) { const all = {}; CATALOG.forEach((n) => { all[n] = true; }); return all; }
@@ -1204,6 +1254,39 @@ export default function App() {
       </div>
     </div>
   )}
+  {!helpOpen && (
+    <button onClick={() => setHelpOpen(true)} style={{ position: "fixed", right: 14, bottom: view === "list-detail" ? 20 : 78, zIndex: 600, background: t.accent, color: t.accentText, border: "none", borderRadius: 24, padding: "10px 16px", fontSize: fs - 2, fontWeight: "bold", cursor: "pointer", fontFamily: "inherit", boxShadow: `0 4px 16px ${t.shadow}`, display: "flex", alignItems: "center", gap: 6 }}>❓ Tutorial</button>
+  )}
+  {helpOpen && (
+    <div style={{ position: "fixed", inset: 0, zIndex: 870, display: "flex", flexDirection: "column" }}>
+      <div onClick={() => setHelpOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
+      <div style={{ position: "relative", zIndex: 1, marginTop: "auto", width: "100%", maxWidth: 430, marginLeft: "auto", marginRight: "auto", background: t.bg2, borderRadius: "20px 20px 0 0", maxHeight: "85vh", display: "flex", flexDirection: "column", border: `1px solid ${t.border}` }}>
+        <div style={{ padding: "18px 20px 12px", borderBottom: `1px solid ${t.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+          <div>
+            <div style={{ fontSize: fs + 1, fontWeight: "bold" }}>❓ Tutorial — Como usar o app</div>
+            <div style={{ fontSize: fs - 4, color: t.text3, marginTop: 2 }}>Guia rapido com todas as funcoes, passo a passo</div>
+          </div>
+          <button onClick={() => setHelpOpen(false)} style={{ background: t.bg3, border: "none", color: t.text2, width: 32, height: 32, borderRadius: 8, cursor: "pointer", fontSize: 16 }}>✕</button>
+        </div>
+        <div style={{ overflowY: "auto", flex: 1, padding: "12px 16px 24px" }}>
+          {HELP_SECTIONS.map((sec) => (
+            <div key={sec.title} style={{ background: t.bg3, border: `1px solid ${t.border}`, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+              <div style={{ fontSize: fs - 1, fontWeight: "bold", color: t.accent, marginBottom: 8 }}>{sec.icon} {sec.title}</div>
+              {sec.steps.map((st, i) => (
+                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: 9, background: t.accentBg, color: t.accent, fontSize: fs - 5, fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{i + 1}</div>
+                  <div style={{ fontSize: fs - 3, color: t.text2, lineHeight: 1.5 }}>{st}</div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: "12px 16px", borderTop: `1px solid ${t.border}`, flexShrink: 0 }}>
+          <button onClick={() => setHelpOpen(false)} style={{ ...primaryBtn, padding: "12px" }}>✓ ENTENDI, FECHAR TUTORIAL</button>
+        </div>
+      </div>
+    </div>
+  )}
   {favOpen && (
     <div style={{ position: "fixed", inset: 0, zIndex: 850, display: "flex", flexDirection: "column" }}>
       <div onClick={() => setFavOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
@@ -1526,9 +1609,9 @@ export default function App() {
             {filteredLists.length === 0 ? (
               <div style={{ textAlign: "center", padding: "50px 0", color: t.text4 }}>
                 <div style={{ fontSize: 38 }}>🛒</div>
-                <div style={{ marginTop: 10, fontSize: fs }}>Nenhuma lista encontrada</div>\n              <button onClick={openSeedModal} style={{ ...primaryBtn, padding: "12px 18px", marginTop: 18 }}>{"\u{1F6D2}"} CRIAR LISTA DO MES (ITENS BASICOS)</button>\n              <div style={{ display: "none" }}></div>
+                <div style={{ marginTop: 10, fontSize: fs }}>Nenhuma lista encontrada</div>
               </div>
-) : (() => {
+            ) : (() => {
               const now = new Date();
               const curMk = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
               const todayStr2 = now.toISOString().slice(0,10);
