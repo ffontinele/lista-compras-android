@@ -255,9 +255,9 @@ Comportamento em cascata:
 
 ## 👨‍💻 Desenvolvedor
 
-**William Santos**
-- GitHub: [@thespation](https://github.com/thespation)
-- E-mail: thespation@gmail.com
+**Ferdinan Fontinele**
+- GitHub: [@ffontinele](https://github.com/ffontinele)
+- E-mail: ffontinele@gmail.com
 
 ---
 
